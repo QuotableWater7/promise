@@ -78,12 +78,21 @@ test('It can route errors to error handler in "then"', async () => {
 		)
 })
 
-test('It can catch delayed errors', async () => {
+test('It can catch delayed errors in "then"', async () => {
 	await new CP((resolve, reject) => {
 		setTimeout(() => reject('boop'), 1)
 	})
 		.then(
 			() => null,
+			error => expectEqual(error, 'boop')
+		)
+})
+
+test('It can catch delayed errors in "catch"', async () => {
+	await new CP((resolve, reject) => {
+		setTimeout(() => reject('boop'), 1)
+	})
+		.catch(
 			error => expectEqual(error, 'boop')
 		)
 })
