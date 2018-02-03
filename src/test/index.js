@@ -7,16 +7,16 @@ function expectEqual(val1, val2) {
 }
 
 async function test(description, cb) {
+	let timeoutHasPassed = false
+	let before
+	let after
+
+	const timeout = setTimeout(() => {
+		timeoutHasPassed = true
+		console.log(`x timeout (${description})`)
+	}, 1000)
+
 	try {
-		let timeoutHasPassed = false
-		let before
-		let after
-
-		const timeout = setTimeout(() => {
-			timeoutHasPassed = true
-			console.log(`x timeout (${description})`)
-		}, 1000)
-
 		before = Number(new Date())
 		await cb()
 		after = Number(new Date())
@@ -26,7 +26,8 @@ async function test(description, cb) {
 			console.log(`o ${description} (${after - before}ms)`)
 		}
 	} catch (e) {
-		console.log(`x ${description}: ${e}`)
+		clearTimeout(timeout)
+		console.log(`x ${description}\n\t${e}`)
 	}
 }
 
