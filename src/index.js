@@ -1,4 +1,4 @@
-class CP {
+class P {
 	constructor(cb) {
 		this.state = 'PENDING'
 		this.resolvedCallbacks = []
@@ -41,7 +41,7 @@ class CP {
 	}
 
 	then(successFn, errorFn) {
-		return new CP((resolve, reject) => {
+		return new P((resolve, reject) => {
 			if (this.state === 'RESOLVED') {
 				try {
 					resolve(successFn(this.value))
@@ -68,4 +68,4 @@ class CP {
 	}
 }
 
-module.exports = CP
+module.exports = P

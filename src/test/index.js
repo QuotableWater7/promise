@@ -1,4 +1,4 @@
-const CP = require('..')
+const P = require('..')
 
 function expectEqual(val1, val2) {
 	if (val1 !== val2) {
@@ -31,13 +31,13 @@ async function test(description, cb) {
 }
 
 test('It works when value resolves immediately', async () => {
-	const result = await new CP(resolve => resolve(5))
+	const result = await new P(resolve => resolve(5))
 
 	expectEqual(result, 5)
 })
 
 test('It works when value resolves later', async () => {
-	const result = await new CP(resolve => {
+	const result = await new P(resolve => {
 		setTimeout(() => resolve(5), 1)
 	})
 
@@ -45,7 +45,7 @@ test('It works when value resolves later', async () => {
 })
 
 test('It can catch thrown error in resolver', async () => {
-	const result = await new CP(resolve => {
+	const result = await new P(resolve => {
 		throw new Error('nooo')
 	})
 		.catch(error => {
@@ -54,7 +54,7 @@ test('It can catch thrown error in resolver', async () => {
 })
 
 test('It can catch error immediately', async () => {
-	await new CP((resolve, reject) => {
+	await new P((resolve, reject) => {
 		reject('oops')
 	})
 		.catch(error => {
@@ -64,7 +64,7 @@ test('It can catch error immediately', async () => {
 
 test('It can trap errors in try/catch', async () => {
 	try {
-		await new CP((resolve, reject) => {
+		await new P((resolve, reject) => {
 			reject('unhandled')
 		})
 	} catch (e) {
@@ -73,7 +73,7 @@ test('It can trap errors in try/catch', async () => {
 })
 
 test('It can catch errors that happen in "then" chain', async () => {
-	await new CP((resolve, reject) => {
+	await new P((resolve, reject) => {
 		resolve(4)
 	})
 		.then(() => {
@@ -85,7 +85,7 @@ test('It can catch errors that happen in "then" chain', async () => {
 })
 
 test('It can route errors to error handler in "then"', async () => {
-	await new CP((resolve, reject) => {
+	await new P((resolve, reject) => {
 		reject('shit')
 	})
 		.then(
@@ -95,7 +95,7 @@ test('It can route errors to error handler in "then"', async () => {
 })
 
 test('It can catch delayed errors in "then"', async () => {
-	await new CP((resolve, reject) => {
+	await new P((resolve, reject) => {
 		setTimeout(() => reject('boop'), 1)
 	})
 		.then(
@@ -105,7 +105,7 @@ test('It can catch delayed errors in "then"', async () => {
 })
 
 test('It can catch delayed errors in "catch"', async () => {
-	await new CP((resolve, reject) => {
+	await new P((resolve, reject) => {
 		setTimeout(() => reject('boop'), 1)
 	})
 		.catch(
