@@ -8,8 +8,23 @@ function expectEqual(val1, val2) {
 
 async function test(description, cb) {
 	try {
+		let timeoutHasPassed = false
+		let before
+		let after
+
+		const timeout = setTimeout(() => {
+			timeoutHasPassed = true
+			console.log(`x timeout (${description})`)
+		}, 1000)
+
+		before = Number(new Date())
 		await cb()
-		console.log(`o ${description}`)
+		after = Number(new Date())
+
+		if (!timeoutHasPassed) {
+			clearTimeout(timeout)
+			console.log(`o ${description} (${after - before}ms)`)
+		}
 	} catch (e) {
 		console.log(`x ${description}: ${e}`)
 	}
