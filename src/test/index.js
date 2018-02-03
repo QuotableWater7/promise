@@ -47,9 +47,10 @@ test('It works when value resolves later', async () => {
 test('It can catch thrown error in resolver', async () => {
 	const result = await new CP(resolve => {
 		throw new Error('nooo')
-	}).catch(error => {
-		expectEqual(error.message, 'nooo')
 	})
+		.catch(error => {
+			expectEqual(error.message, 'nooo')
+		})
 })
 
 test('It can catch error immediately', async () => {
