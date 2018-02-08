@@ -24,9 +24,9 @@ class P {
 
 		this.resolvedCallbacks.forEach(({ success, error }) => {
 			try {
-				success(value)
+				success && success(value)
 			} catch (e) {
-				error(e)
+				error && error(e)
 			}
 		})
 	}
@@ -65,6 +65,28 @@ class P {
 		} else if (this.state === 'PENDING') {
 			this.resolvedCallbacks.push({ error: cb })
 		}
+	}
+
+	static all(promiseArray) {
+		return new P((resolve, reject) => {
+			const total = promiseArray.length
+			const results = []
+
+			let numCompleted = 0
+
+			promiseArray.forEach((promise, index) => {
+				promise
+					.then(value => {
+						results[index] = value
+						numCompleted++
+
+						if (numCompleted === total) {
+							resolve(results)
+						}
+					})
+					.catch(error => reject(error))
+			})
+		})
 	}
 }
 
