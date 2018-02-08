@@ -72,6 +72,11 @@ class P {
 			const total = promiseArray.length
 			const results = []
 
+			if (total === 0) {
+				resolve(results)
+				return
+			}
+
 			let numCompleted = 0
 
 			promiseArray.forEach((promise, index) => {
@@ -86,6 +91,38 @@ class P {
 					})
 					.catch(error => reject(error))
 			})
+		})
+	}
+
+	static map(array, func, { concurrency = Infinity } = {}) {
+		return new P(resolve => {
+			// load up `concurrency` promises that when resolved, queue up the next promise
+			// once we've sent out final promise, return P.all(promises)
+			const totalItems = array.length
+			const initialToCommence = Math.min(totalItems, concurrency)
+
+			const promises = []
+			let currentIndex = 0
+
+			function queuePromise() {
+				const promise = func(array[currentIndex++])
+
+				promise.then(result => {
+					if (currentIndex === totalItems) {
+						resolve(P.all(promises))
+					} else {
+						queuePromise()
+					}
+
+					return result
+				})
+
+				promises.push(promise)
+			}
+
+			for (let i = 0; i < initialToCommence; i++) {
+				queuePromise()
+			}
 		})
 	}
 }

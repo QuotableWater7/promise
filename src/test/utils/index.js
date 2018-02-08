@@ -1,4 +1,16 @@
 module.exports = {
+	expectEqualArr: (val1, val2) => {
+		if (val1.length !== val2.length) {
+			throw new Error(`Array 1 is length ${val1.length} and array 2 is length ${val2.length}`)
+		}
+
+		val1.forEach((value, index) => {
+			if (value !== val2[index]) {
+				throw new Error(`Array value ${value} not equal to ${val2[index]}`)
+			}
+		})
+	},
+
 	expectEqual: (val1, val2) => {
 		if (val1 !== val2) {
 			throw new Error(`Not equal: ${val1}, ${val2}`)
@@ -13,7 +25,7 @@ module.exports = {
 		const timeout = setTimeout(() => {
 			timeoutHasPassed = true
 			console.log(`x timeout (${description})`)
-		}, 1000)
+		}, 5000)
 
 		try {
 			before = Number(new Date())
