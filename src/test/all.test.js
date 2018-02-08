@@ -1,11 +1,9 @@
 const P = require('..')
 
-const { test, expectEqual } = require('./utils')
-
 test('It can resolve empty array', async () => {
 	const results = await P.all([])
 
-	expectEqual(results, [])
+	expect(results).toEqual([])
 })
 
 test('It can resolve many promises', async () => {
@@ -15,7 +13,7 @@ test('It can resolve many promises', async () => {
 
 	const [result1, result2, result3] = await P.all([P1, P2, P3])
 
-	expectEqual(result1, 1)
-	expectEqual(result2, 2)
-	expectEqual(result3, 3)
+	expect(result1).toBe(1)
+	expect(result2).toBe(2)
+	expect(result3).toBe(3)
 })

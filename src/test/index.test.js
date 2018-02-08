@@ -1,11 +1,9 @@
 const P = require('..')
 
-const { test, expectEqual } = require('./utils')
-
 test('It works when value resolves immediately', async () => {
 	const result = await new P(resolve => resolve(5))
 
-	expectEqual(result, 5)
+	expect(result).toBe(5)
 })
 
 test('It works when value resolves later', async () => {
@@ -13,7 +11,7 @@ test('It works when value resolves later', async () => {
 		setTimeout(() => resolve(5), 1)
 	})
 
-	expectEqual(result, 5)
+	expect(result).toBe(5)
 })
 
 test('It can catch thrown error in resolver', async () => {
@@ -21,7 +19,7 @@ test('It can catch thrown error in resolver', async () => {
 		throw new Error('nooo')
 	})
 		.catch(error => {
-			expectEqual(error.message, 'nooo')
+			expect(error.message).toBe('nooo')
 		})
 })
 
@@ -30,7 +28,7 @@ test('It can catch error immediately', async () => {
 		reject('oops')
 	})
 		.catch(error => {
-			expectEqual(error, 'oops')
+			expect(error).toBe('oops')
 		})
 })
 
@@ -39,8 +37,8 @@ test('It can trap errors in try/catch', async () => {
 		await new P((resolve, reject) => {
 			reject('unhandled')
 		})
-	} catch (e) {
-		expectEqual(e, 'unhandled')
+	} catch (error) {
+		expect(error).toBe('unhandled')
 	}
 })
 
@@ -52,7 +50,7 @@ test('It can catch errors that happen in "then" chain', async () => {
 			throw new Error('blah')
 		})
 		.catch(e => {
-			expectEqual(e.message, 'blah')
+			expect(e.message).toBe('blah')
 		})
 })
 
@@ -62,7 +60,7 @@ test('It can route errors to error handler in "then"', async () => {
 	})
 		.then(
 			() => null,
-			error => expectEqual(error, 'shit')
+			error => expect(error).toBe('shit')
 		)
 })
 
@@ -72,7 +70,7 @@ test('It can catch delayed errors in "then"', async () => {
 	})
 		.then(
 			() => null,
-			error => expectEqual(error, 'boop')
+			error => expect(error).toBe('boop')
 		)
 })
 
@@ -81,6 +79,6 @@ test('It can catch delayed errors in "catch"', async () => {
 		setTimeout(() => reject('boop'), 1)
 	})
 		.catch(
-			error => expectEqual(error, 'boop')
+			error => expect(error).toBe('boop')
 		)
 })

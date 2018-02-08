@@ -1,7 +1,5 @@
 const P = require('..')
 
-const { test, expectEqual } = require('./utils')
-
 test('It can map using a promise-returning func with set concurrency', async () => {
 	const array = [100, 200, 300, 400, 500]
 
@@ -14,11 +12,11 @@ test('It can map using a promise-returning func with set concurrency', async () 
 
 	const [item1, item2, item3, item4, item5] = await P.map(array, promiseFunc)
 
-	expectEqual(item1, 100)
-	expectEqual(item2, 200)
-	expectEqual(item3, 300)
-	expectEqual(item4, 400)
-	expectEqual(item5, 500)
+	expect(item1).toBe(100)
+	expect(item2).toBe(200)
+	expect(item3).toBe(300)
+	expect(item4).toBe(400)
+	expect(item5).toBe(500)
 })
 
 
@@ -34,9 +32,9 @@ test('It can map using a promise-returning func with set concurrency', async () 
 
 	const [item1, item2, item3, item4, item5] = await P.map(array, promiseFunc, { concurrency: 2 })
 
-	expectEqual(item1, 100)
-	expectEqual(item2, 200)
-	expectEqual(item3, 300)
-	expectEqual(item4, 400)
-	expectEqual(item5, 500)
+	expect(item1).toBe(100)
+	expect(item2).toBe(200)
+	expect(item3).toBe(300)
+	expect(item4).toBe(400)
+	expect(item5).toBe(500)
 })
