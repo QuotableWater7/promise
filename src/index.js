@@ -95,33 +95,56 @@ class P {
 	}
 
 	static map(array, func, { concurrency = Infinity } = {}) {
-		return new P(resolve => {
-			// load up `concurrency` promises that when resolved, queue up the next promise
-			// once we've sent out final promise, return P.all(promises)
-			const totalItems = array.length
-			const initialToCommence = Math.min(totalItems, concurrency)
+		return new P((resolve, reject) => {
+			// even if concurrency is really high, we can't have more promises active
+			// than the number of items in the array
+			const maxActivePromises = Math.min(array.length, concurrency)
+
+			// if any promise fails, we want to reject a single time with that error
+			let anyThrown = false
 
 			const promises = []
 			let currentIndex = 0
 
-			function queuePromise() {
+			// this helper function loads up a single promise.  each time a promise resolves,
+			// we can check and see if there is another promise that can be queued up
+			function executePromise() {
+				if (anyThrown) {
+					return
+				}
+
 				const promise = func(array[currentIndex++])
 
-				promise.then(result => {
-					if (currentIndex === totalItems) {
-						resolve(P.all(promises))
-					} else {
-						queuePromise()
-					}
+				promise
+					.then(result => {
+						// don't do anything if another promise has already failed
+						if (anyThrown) {
+							return
+						}
 
-					return result
-				})
+						if (currentIndex === totalItems) {
+							// if we have already executed all promises, we can now just use P.all to wait
+							// on them all being completed
+							resolve(P.all(promises))
+						} else {
+							executePromise()
+						}
+
+						return result
+					})
+					.catch(error => {
+						if (!anyThrown) {
+							anyThrown = true
+							reject(error)
+						}
+					})
 
 				promises.push(promise)
 			}
 
-			for (let i = 0; i < initialToCommence; i++) {
-				queuePromise()
+			// execute initial set of promises
+			for (let i = 0; i < maxActivePromises; i++) {
+				executePromise()
 			}
 		})
 	}
