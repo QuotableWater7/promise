@@ -122,7 +122,7 @@ class P {
 							return
 						}
 
-						if (currentIndex === totalItems) {
+						if (currentIndex === array.length) {
 							// if we have already executed all promises, we can now just use P.all to wait
 							// on them all being completed
 							resolve(P.all(promises))
