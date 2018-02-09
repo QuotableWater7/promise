@@ -82,3 +82,25 @@ test('It can catch delayed errors in "catch"', async () => {
 			error => expect(error).toBe('boop')
 		)
 })
+
+test('It can catch delayed errors in "catch" after a "then"', async () => {
+	await new P((resolve, reject) => {
+		setTimeout(() => reject('boop'), 1)
+	})
+		.then(result => result)
+		.catch(
+			error => expect(error).toBe('boop')
+		)
+})
+
+test('It can catch error that happens in "then"', async () => {
+	await new P((resolve, reject) => {
+		setTimeout(() => resolve('boop'), 1)
+	})
+		.then(result => {
+			throw new Error('oopsadoop')
+		})
+		.catch(
+			error => expect(error.message).toBe('oopsadoop')
+		)
+})
