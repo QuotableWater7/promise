@@ -158,6 +158,31 @@ class P {
 			}
 		})
 	}
+
+	static reduce(array, reducer, initialValue) {
+		const numItems = array.length
+		let result = initialValue
+		let index = 0
+
+		return new P(resolve => {
+			function processItem() {
+				const item = array[index++]
+
+				reducer(result, item)
+					.then(newResult => {
+						result = newResult
+
+						if (index === numItems) {
+							resolve(result)
+						} else {
+							processItem()
+						}
+					})
+			}
+
+			processItem()
+		})
+	}
 }
 
 module.exports = P
