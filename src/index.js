@@ -9,8 +9,8 @@ class P {
 		process.nextTick(() => {
 			try {
 				cb(
-					this.resolve.bind(this),
-					this.reject.bind(this)
+					(...args) => this.resolve(...args),
+					(...args) => this.reject(...args)
 				)
 			} catch (e) {
 				this.reject(e)
@@ -78,10 +78,15 @@ class P {
 			}
 
 			let numCompleted = 0
+			let anyThrown = false
 
 			promiseArray.forEach((promise, index) => {
 				promise
 					.then(value => {
+						if (anyThrown) {
+							return
+						}
+
 						results[index] = value
 						numCompleted++
 
@@ -89,7 +94,12 @@ class P {
 							resolve(results)
 						}
 					})
-					.catch(error => reject(error))
+					.catch(error => {
+						if (!anyThrown) {
+							anyThrown = true
+							reject(error)
+						}
+					})
 			})
 		})
 	}

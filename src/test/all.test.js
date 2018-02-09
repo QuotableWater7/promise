@@ -17,3 +17,13 @@ test('It can resolve many promises', async () => {
 	expect(result2).toBe(2)
 	expect(result3).toBe(3)
 })
+
+test('It returns error from first failing promise', async () => {
+	const P1 = new P(resolve => setTimeout(() => resolve(1), 50))
+	const P2 = new P((resolve, reject) => setTimeout(() => reject(2), 60))
+	const P3 = new P((resolve, reject) => setTimeout(() => reject(3), 10))
+
+	expect(
+		P.all([P1, P2, P3])
+	).rejects.toThrowError(3)
+})
