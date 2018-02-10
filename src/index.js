@@ -40,7 +40,7 @@ class P {
 		})
 	}
 
-	then(successFn, errorFn) {
+	then(successFn, errorFn = noop => noop) {
 		return new P((resolve, reject) => {
 			if (this.state === 'RESOLVED') {
 				try {
@@ -53,7 +53,7 @@ class P {
 			} else if (this.state === 'PENDING') {
 				this.resolvedCallbacks.push({
 					success: value => resolve(successFn(value)),
-					error: errorFn ? error => resolve(errorFn(error)) : () => null
+					error: error => resolve(errorFn(error)),
 				})
 			}
 		})
