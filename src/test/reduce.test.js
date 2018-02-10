@@ -33,6 +33,7 @@ test('It can handle when a promise rejects', async () => {
 	const reducer = (memo, item) => new P((resolve, reject) => {
 		if (item === 3) {
 			reject('oops')
+			return
 		}
 
 		resolve(memo + item)
@@ -48,7 +49,7 @@ test('It can handle when an async function throws', async () => {
 
 	const reducer = async (memo, item) => {
 		if (item === 3) {
-			throw new Error('oops')
+			throw new Error('oops async')
 		}
 
 		return memo + item
@@ -56,5 +57,5 @@ test('It can handle when an async function throws', async () => {
 
 	expect(
 		P.reduce(array, reducer, 0)
-	).rejects.toThrowError('oops')
+	).rejects.toThrowError('oops async')
 })

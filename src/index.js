@@ -2,9 +2,6 @@ class P {
 	constructor(cb) {
 		this.state = 'PENDING'
 		this.resolvedCallbacks = []
-		this.rejectedCallbacks = []
-
-		this.rejectionWasHandled = false
 
 		process.nextTick(() => {
 			try {
@@ -164,7 +161,7 @@ class P {
 		let result = initialValue
 		let index = 0
 
-		return new P(resolve => {
+		return new P((resolve, reject) => {
 			function processItem() {
 				const item = array[index++]
 
@@ -177,6 +174,9 @@ class P {
 						} else {
 							processItem()
 						}
+					})
+					.catch(error => {
+						reject(error)
 					})
 			}
 

@@ -24,12 +24,11 @@ test('It can catch thrown error in resolver', async () => {
 })
 
 test('It can catch error immediately', async () => {
-	await new P((resolve, reject) => {
-		reject('oops')
-	})
-		.catch(error => {
-			expect(error).toBe('oops')
+	expect(
+		new P((resolve, reject) => {
+			reject('right awayyyy')
 		})
+	).rejects.toThrowError('right awayyyy')
 })
 
 test('It can trap errors in try/catch', async () => {
