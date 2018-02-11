@@ -1,9 +1,12 @@
-const isPromise = value => typeof value === 'object' && typeof value.then === 'function'
+const isPromise = value => (
+	typeof value === 'object' &&
+	typeof value.then === 'function'
+)
 
 class P {
 	constructor(cb) {
 		this.state = 'PENDING'
-		this.resolvedCallbacks = []
+		this.callbacks = []
 
 		process.nextTick(() => {
 			try {
@@ -21,7 +24,7 @@ class P {
 		this.state = 'RESOLVED'
 		this.value = value
 
-		this.resolvedCallbacks.forEach(({ success, error }) => {
+		this.callbacks.forEach(({ success, error }) => {
 			try {
 				success && success(value)
 			} catch (e) {
@@ -34,34 +37,38 @@ class P {
 		this.state = 'REJECTED'
 		this.error = error
 
-		this.resolvedCallbacks.forEach(({ error: errorFn }) => {
+		this.callbacks.forEach(({ error: errorFn }) => {
 			errorFn(error)
 		})
 	}
 
-	then(successFn, errorFn = noop => noop) {
+	then(successFn, errorFn = null) {
 		return new P((resolve, reject) => {
 			if (this.state === 'RESOLVED') {
 				resolve(successFn(this.value))
 			} else if (this.state === 'REJECTED' && errorFn) {
 				resolve(errorFn(this.error))
 			} else if (this.state === 'PENDING') {
-				this.resolvedCallbacks.push({
+				this.callbacks.push({
 					success: value => resolve(successFn(value)),
-					error: error => resolve(errorFn(error)),
+					error: errorFn ?
+						error => resolve(errorFn(error)) :
+						reject,
 				})
 			}
 		})
 	}
 
 	catch(cb) {
-		if (this.state === 'REJECTED') {
-			cb(this.error)
-		} else if (this.state === 'PENDING') {
-			this.resolvedCallbacks.push({
-				error: cb,
-			})
-		}
+		return new P(resolve => {
+			if (this.state === 'REJECTED') {
+				resolve(cb(this.error))
+			} else if (this.state === 'PENDING') {
+				this.callbacks.push({
+					error: error => resolve(cb(error)),
+				})
+			}
+		})
 	}
 
 	// iterate over each item in the array and process it with async "func"

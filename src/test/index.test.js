@@ -63,43 +63,47 @@ test('It can route errors to error handler in "then"', async () => {
 		)
 })
 
-test('It can catch delayed errors in "then"', async () => {
-	await new P((resolve, reject) => {
-		setTimeout(() => reject('boop'), 1)
-	})
-		.then(
-			() => null,
-			error => expect(error).toBe('boop')
-		)
+test('It can handle delayed errors in "then"', async () => {
+	await expect(
+		new P((resolve, reject) => {
+			setTimeout(() => reject('boop'), 1)
+		})
+			.then(
+				() => null,
+				error => 'delayed error in then: ' + error
+			)
+	).resolves.toBe('delayed error in then: boop')
 })
 
 test('It can catch delayed errors in "catch"', async () => {
-	await new P((resolve, reject) => {
-		setTimeout(() => reject('boop'), 50)
-	})
-		.catch(
-			error => expect(error).toBe('boop')
-		)
+	await expect(
+		new P((resolve, reject) => {
+			setTimeout(() => reject('boop'), 50)
+		})
+			.catch(error => 'delayed error in catch: ' + error)
+	).resolves.toBe('delayed error in catch: boop')
 })
 
 test('It can catch delayed errors in "catch" after a "then"', async () => {
-	await new P((resolve, reject) => {
-		setTimeout(() => reject('boop'), 1)
-	})
-		.then(result => result)
-		.catch(
-			error => expect(error).toBe('boop')
-		)
+	await expect(
+		new P((resolve, reject) => {
+			setTimeout(() => reject('boop'), 1)
+		})
+			.then(result => result)
+			.catch(
+				error => 'catch after then: ' + error
+			)
+	).resolves.toBe('catch after then: boop')
 })
 
 test('It can catch error that happens in "then"', async () => {
-	await new P((resolve, reject) => {
-		setTimeout(() => resolve('boop'), 1)
-	})
-		.then(result => {
-			throw new Error('oopsadoop')
+	await expect(
+		new P((resolve, reject) => {
+			setTimeout(() => resolve('boop'), 1)
 		})
-		.catch(
-			error => expect(error.message).toBe('oopsadoop')
-		)
+			.then(result => {
+				throw new Error('oopsadoop')
+			})
+			.catch(error => error.message)
+	).resolves.toBe('oopsadoop')
 })

@@ -19,16 +19,16 @@ test('It waits to resolve all the values of the object', async () => {
 	expect(four).toBe('bloop')
 })
 
-// test.only('It catches errors on any of the promises', async () => {
-// 	await expect(
-// 		P.props({
-// 			one: new P(resolve => resolve(1)),
-// 			// two: new P((resolve, reject) => {
-// 			// 	setTimeout(() => reject('bloo'), 1000)
-// 			// }),
-// 			three: new P((resolve, reject) => {
-// 				setTimeout(() => console.log("THROWIN") || reject('blah'), 1000)
-// 			}),
-// 		})
-// 	).rejects.toThrow('blah')
-// })
+test('It catches errors on any of the promises', async () => {
+	await expect(
+		P.props({
+			one: new P(resolve => resolve(1)),
+			two: new P((resolve, reject) => {
+				setTimeout(() => reject('bloo'), 1000)
+			}),
+			three: new P((resolve, reject) => {
+				setTimeout(() => reject('blah'), 10)
+			}),
+		})
+	).rejects.toThrow('blah')
+})
