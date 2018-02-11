@@ -107,3 +107,20 @@ test('It can catch error that happens in "then"', async () => {
 			.catch(error => error.message)
 	).resolves.toBe('oopsadoop')
 })
+
+test('It cannot call .then on main event loop', async () => {
+	let whodunnit
+
+	new P(resolve => resolve())
+		.then(() => {
+			if (!whodunnit) {
+				whodunnit = 'promise'
+			}
+		})
+
+	if (!whodunnit) {
+		whodunnit = 'main loop'
+	}
+
+	expect(whodunnit).toBe('main loop')
+})

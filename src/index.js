@@ -8,14 +8,21 @@ class P {
 		this.state = 'PENDING'
 		this.callbacks = []
 
-		try {
-			cb(
-				(...args) => this.resolve(...args),
-				(...args) => this.reject(...args)
-			)
-		} catch (error) {
-			this.reject(error)
-		}
+		// The next chunk of code executes the callback given to the promise.
+
+		// ** Why wrap in process.nextTick? **
+		// This is necessary in order to mimic the behavior of native promises,
+		// where .then is never executed on the main event loop.
+		process.nextTick(() => {
+			try {
+				cb(
+					(...args) => this.resolve(...args),
+					(...args) => this.reject(...args)
+				)
+			} catch (error) {
+				this.reject(error)
+			}
+		})
 	}
 
 	resolve(value) {
@@ -161,21 +168,18 @@ class P {
 	// items are handled serially, so no more than one promise is awaiting resolution at any time.
 	static reduce(array, reducer, initialValue) {
 		const numItems = array.length
-		let result = initialValue
 		let index = 0
 
 		return new P((resolve, reject) => {
-			function processItem() {
+			function processItem(result) {
 				const item = array[index++]
 
 				reducer(result, item)
 					.then(newResult => {
-						result = newResult
-
 						if (index === numItems) {
-							resolve(result)
+							resolve(newResult)
 						} else {
-							processItem()
+							processItem(newResult)
 						}
 					})
 					.catch(error => {
@@ -183,7 +187,7 @@ class P {
 					})
 			}
 
-			processItem()
+			processItem(initialValue)
 		})
 	}
 
