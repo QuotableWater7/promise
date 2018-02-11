@@ -168,18 +168,17 @@ class P {
 	// items are handled serially, so no more than one promise is awaiting resolution at any time.
 	static reduce(array, reducer, initialValue) {
 		const numItems = array.length
-		let index = 0
 
 		return new P((resolve, reject) => {
-			function processItem(result) {
-				const item = array[index++]
+			function processItem({ accum, index }) {
+				const item = array[index]
 
-				reducer(result, item)
+				reducer(accum, item)
 					.then(newResult => {
-						if (index === numItems) {
+						if (index === numItems - 1) {
 							resolve(newResult)
 						} else {
-							processItem(newResult)
+							processItem({ accum: newResult, index: index + 1 })
 						}
 					})
 					.catch(error => {
@@ -187,7 +186,7 @@ class P {
 					})
 			}
 
-			processItem(initialValue)
+			processItem({ accum: initialValue, index: 0 })
 		})
 	}
 
