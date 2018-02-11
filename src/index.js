@@ -245,6 +245,13 @@ class P {
 			processValue()
 		})
 	}
+
+	// wait a specified time (optionally provide a return value)
+	static timeout(delay, value = undefined) {
+		return new P(resolve => {
+			setTimeout(() => resolve(value), delay)
+		})
+	}
 }
 
 module.exports = P
