@@ -1,12 +1,23 @@
 const P = require('..')
 
+test('It can accept arguments', async () => {
+	const co = P.co(function* doThings(a, b) {
+		return a + b
+	})
+
+	expect(
+		co(1, 2)
+	).resolves.toBe(3)
+})
+
 test('It can resolve yielded promise', async () => {
 	const co = P.co(function* doThings() {
 		return yield new P(resolve => resolve(4))
 	})
 
-	const result = await co()
-	expect(result).toBe(4)
+	expect(
+		co()
+	).resolves.toBe(4)
 })
 
 test('It can resolve multiple yielded promises', async () => {
@@ -17,8 +28,9 @@ test('It can resolve multiple yielded promises', async () => {
 		return a + b
 	})
 
-	const result = await co()
-	expect(result).toBe(9)
+	expect(
+		co()
+	).resolves.toBe(9)
 })
 
 test('It works when non-promises are yielded', async () => {
@@ -29,8 +41,9 @@ test('It works when non-promises are yielded', async () => {
 		return a + b
 	})
 
-	const result = await co()
-	expect(result).toBe(10)
+	expect(
+		co()
+	).resolves.toBe(10)
 })
 
 test('It works when the returned value is a promise', async () => {
@@ -38,8 +51,9 @@ test('It works when the returned value is a promise', async () => {
 		return new P(resolve => resolve(42))
 	})
 
-	const result = await co()
-	expect(result).toBe(42)
+	expect(
+		co()
+	).resolves.toBe(42)
 })
 
 test('It properly catches errors from sync code', async () => {
