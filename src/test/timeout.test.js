@@ -10,7 +10,6 @@ test('It waits the specified amount of time', async () => {
 	expect(after - before).toBeGreaterThanOrEqual(timeoutAmount)
 })
 
-
 test('It returns the provided value', async () => {
 	const expected = 'beep boop'
 	const actual = await P.timeout(10, expected)

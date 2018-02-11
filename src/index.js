@@ -252,6 +252,11 @@ class P {
 			setTimeout(() => resolve(value), delay)
 		})
 	}
+
+	// return a promise that resolves with given value
+	static resolve(value) {
+		return new P(resolve => resolve(value))
+	}
 }
 
 module.exports = P
