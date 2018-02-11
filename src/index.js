@@ -1,3 +1,5 @@
+const isPromise = value => typeof value === 'object' && typeof value.then === 'function'
+
 class P {
 	constructor(cb) {
 		this.state = 'PENDING'
@@ -181,6 +183,38 @@ class P {
 			}
 
 			processItem()
+		})
+	}
+
+	static co(generator) {
+		return (...args) => new P((resolve, reject) => {
+			const values = generator(...args)
+
+			function processValue(prev = null) {
+				const { value, done } = values.next(prev)
+
+				if (done) {
+					if (isPromise(value)) {
+						value
+							.then(resolve)
+							.catch(reject)
+					} else {
+						resolve(value)
+					}
+
+					return
+				}
+
+				if (isPromise(value)) {
+					value
+						.then(processValue)
+						.catch(reject)
+				} else {
+					processValue(value)
+				}
+			}
+
+			processValue()
 		})
 	}
 }
