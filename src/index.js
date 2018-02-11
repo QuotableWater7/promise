@@ -62,6 +62,8 @@ class P {
 		}
 	}
 
+	// iterate over each item in the array and process it with async "func"
+	// once all are complete, we can resolve
 	static each(array, func) {
 		return new P((resolve, reject) => {
 			function processItem(index) {
@@ -79,6 +81,8 @@ class P {
 		})
 	}
 
+	// wait until all promises in "promiseArray" have finished executing, then resolve with their
+	// completed values in the same order as they were provided
 	static all(promiseArray) {
 		return new P((resolve, reject) => {
 			const total = promiseArray.length
@@ -116,6 +120,8 @@ class P {
 		})
 	}
 
+	// given an array, map over it with async "func" until every item has been processed.
+	// only "concurrency" promises are active at any given time.
 	static map(array, func, { concurrency = Infinity } = {}) {
 		return new P((resolve, reject) => {
 			// even if concurrency is really high, we can't have more promises active
@@ -171,6 +177,8 @@ class P {
 		})
 	}
 
+	// similar to Array.prototype.reduce, except the reducer is an async function.
+	// items are handled serially, so no more than one promise is awaiting resolution at any time.
 	static reduce(array, reducer, initialValue) {
 		const numItems = array.length
 		let result = initialValue
@@ -199,6 +207,7 @@ class P {
 		})
 	}
 
+	// behaves like an async function, or Bluebird's "coroutine".
 	static co(generator) {
 		return (...args) => new P((resolve, reject) => {
 			const values = generator(...args)
