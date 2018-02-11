@@ -66,6 +66,27 @@ class P {
 		}
 	}
 
+	static each(array, func) {
+		return new P((resolve, reject) => {
+			function processItem(index) {
+				if (index === array.length) {
+					resolve()
+					return
+				}
+
+				try {
+					func(array[index])
+						.then(() => processItem(index + 1))
+						.catch(reject)
+				} catch (error) {
+					reject(error)
+				}
+			}
+
+			processItem(0)
+		})
+	}
+
 	static all(promiseArray) {
 		return new P((resolve, reject) => {
 			const total = promiseArray.length
