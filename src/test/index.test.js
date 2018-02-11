@@ -75,7 +75,7 @@ test('It can catch delayed errors in "then"', async () => {
 
 test('It can catch delayed errors in "catch"', async () => {
 	await new P((resolve, reject) => {
-		setTimeout(() => reject('boop'), 1)
+		setTimeout(() => reject('boop'), 50)
 	})
 		.catch(
 			error => expect(error).toBe('boop')

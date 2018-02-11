@@ -58,7 +58,9 @@ class P {
 		if (this.state === 'REJECTED') {
 			cb(this.error)
 		} else if (this.state === 'PENDING') {
-			this.resolvedCallbacks.push({ error: cb })
+			this.resolvedCallbacks.push({
+				error: cb,
+			})
 		}
 	}
 
@@ -177,6 +179,36 @@ class P {
 			}
 
 			processItem()
+		})
+	}
+
+	// same as Bluebird's static props function
+	static props(obj) {
+		return new P((resolve, reject) => {
+			const keys = Object.keys(obj)
+			const result = {}
+
+			const totalPromises = keys.length
+			let completedPromises = 0
+			let anyThrown = false
+
+			keys.forEach(key => {
+				obj[key]
+					.then(value => {
+						result[key] = value
+						completedPromises++
+
+						if (completedPromises === totalPromises && !anyThrown) {
+							resolve(result)
+						}
+					})
+					.catch(error => {
+						if (!anyThrown) {
+							anyThrown = true
+							reject(error)
+						}
+					})
+			})
 		})
 	}
 
