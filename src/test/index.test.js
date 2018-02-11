@@ -108,13 +108,49 @@ test('It can catch error that happens in "then"', async () => {
 	).resolves.toBe('oopsadoop')
 })
 
-test('It cannot call .then on main event loop', async () => {
+test('It executes promise constructor callback immediately', async () => {
+	let whodunnit
+
+	new P(resolve => {
+		if (!whodunnit) {
+			whodunnit = 'promise'
+		}
+
+		resolve()
+	})
+
+
+	if (!whodunnit) {
+		whodunnit = 'main loop'
+	}
+
+	expect(whodunnit).toBe('promise')
+})
+
+test('It resolves .then call asynchronously', async () => {
 	let whodunnit
 
 	new P(resolve => resolve())
 		.then(() => {
 			if (!whodunnit) {
-				whodunnit = 'promise'
+				whodunnit = 'then'
+			}
+		})
+
+	if (!whodunnit) {
+		whodunnit = 'main loop'
+	}
+
+	expect(whodunnit).toBe('main loop')
+})
+
+test('It resolves .catch call asynchronously', async () => {
+	let whodunnit
+
+	new P((resolve, reject) => reject())
+		.catch(() => {
+			if (!whodunnit) {
+				whodunnit = 'then'
 			}
 		})
 

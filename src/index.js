@@ -9,20 +9,21 @@ class P {
 		this.callbacks = []
 
 		// The next chunk of code executes the callback given to the promise.
-
-		// ** Why wrap in process.nextTick? **
-		// This is necessary in order to mimic the behavior of native promises,
-		// where .then is never executed on the main event loop.
-		process.nextTick(() => {
-			try {
-				cb(
-					(...args) => this.resolve(...args),
-					(...args) => this.reject(...args)
-				)
-			} catch (error) {
-				this.reject(error)
-			}
-		})
+		// Why are the resolve/reject calls wrapped in process.nextTick?
+		// Native promises execute the callback passed to the constructor immediately,
+		// but invoke the resolve/reject handlers asynchronously.
+		try {
+			cb(
+				(...args) => process.nextTick(() => {
+					this.resolve(...args)
+				}),
+				(...args) => process.nextTick(() => {
+					this.reject(...args)
+				})
+			)
+		} catch (error) {
+			this.reject(error)
+		}
 	}
 
 	resolve(value) {
