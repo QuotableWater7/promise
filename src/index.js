@@ -8,16 +8,14 @@ class P {
 		this.state = 'PENDING'
 		this.callbacks = []
 
-		process.nextTick(() => {
-			try {
-				cb(
-					(...args) => this.resolve(...args),
-					(...args) => this.reject(...args)
-				)
-			} catch (error) {
-				this.reject(error)
-			}
-		})
+		try {
+			cb(
+				(...args) => this.resolve(...args),
+				(...args) => this.reject(...args)
+			)
+		} catch (error) {
+			this.reject(error)
+		}
 	}
 
 	resolve(value) {
