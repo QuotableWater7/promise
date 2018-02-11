@@ -94,15 +94,10 @@ class P {
 			}
 
 			let numCompleted = 0
-			let anyThrown = false
 
 			promiseArray.forEach((promise, index) => {
 				promise
 					.then(value => {
-						if (anyThrown) {
-							return
-						}
-
 						results[index] = value
 						numCompleted++
 
@@ -110,12 +105,7 @@ class P {
 							resolve(results)
 						}
 					})
-					.catch(error => {
-						if (!anyThrown) {
-							anyThrown = true
-							reject(error)
-						}
-					})
+					.catch(reject)
 			})
 		})
 	}
@@ -128,28 +118,16 @@ class P {
 			// than the number of items in the array
 			const maxActivePromises = Math.min(array.length, concurrency)
 
-			// if any promise fails, we want to reject a single time with that error
-			let anyThrown = false
-
 			const promises = []
 			let currentIndex = 0
 
 			// this helper function loads up a single promise.  each time a promise resolves,
 			// we can check and see if there is another promise that can be queued up
 			function executePromise() {
-				if (anyThrown) {
-					return
-				}
-
 				const promise = func(array[currentIndex++])
 
 				promise
 					.then(result => {
-						// don't do anything if another promise has already failed
-						if (anyThrown) {
-							return
-						}
-
 						if (currentIndex === array.length) {
 							// if we have already executed all promises, we can now just use P.all to wait
 							// on them all being completed
@@ -160,12 +138,7 @@ class P {
 
 						return result
 					})
-					.catch(error => {
-						if (!anyThrown) {
-							anyThrown = true
-							reject(error)
-						}
-					})
+					.catch(reject)
 
 				promises.push(promise)
 			}
