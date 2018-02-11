@@ -34,3 +34,17 @@ test('It can catch an error from one of the executions', async () => {
 		P.each(items, maybeThrow)
 	).rejects.toThrowError('oops')
 })
+
+test('It can catch an error from a promise-returning async func', async () => {
+	const items = [1, 2, 3]
+
+	function maybeThrow(item) {
+		throw new Error('sync error')
+
+		return new P(resolve => resolve())
+	}
+
+	await expect(
+		P.each(items, maybeThrow)
+	).rejects.toThrowError('sync error')
+})

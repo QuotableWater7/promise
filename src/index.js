@@ -11,8 +11,8 @@ class P {
 					(...args) => this.resolve(...args),
 					(...args) => this.reject(...args)
 				)
-			} catch (e) {
-				this.reject(e)
+			} catch (error) {
+				this.reject(error)
 			}
 		})
 	}
@@ -42,11 +42,7 @@ class P {
 	then(successFn, errorFn = noop => noop) {
 		return new P((resolve, reject) => {
 			if (this.state === 'RESOLVED') {
-				try {
-					resolve(successFn(this.value))
-				} catch (e) {
-					reject(e)
-				}
+				resolve(successFn(this.value))
 			} else if (this.state === 'REJECTED' && errorFn) {
 				resolve(errorFn(this.error))
 			} else if (this.state === 'PENDING') {
@@ -74,13 +70,9 @@ class P {
 					return
 				}
 
-				try {
-					func(array[index])
-						.then(() => processItem(index + 1))
-						.catch(reject)
-				} catch (error) {
-					reject(error)
-				}
+				func(array[index])
+					.then(() => processItem(index + 1))
+					.catch(reject)
 			}
 
 			processItem(0)
