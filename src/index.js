@@ -190,9 +190,13 @@ class P {
 		return (...args) => new P((resolve, reject) => {
 			const values = generator(...args)
 
+			// this function helps us recursively iterate over yielded values
 			function processValue(prev = null) {
 				const { value, done } = values.next(prev)
 
+				// done is true when both conditions are met:
+				//  1) there are no more "yield" calls
+				//  2) we've hit a return statement OR there is no return statement
 				if (done) {
 					if (isPromise(value)) {
 						value
@@ -205,6 +209,8 @@ class P {
 					return
 				}
 
+				// there are more values to handle in the generator, so let's get the value
+				// and supply it to the next "processValue" call
 				if (isPromise(value)) {
 					value
 						.then(processValue)
