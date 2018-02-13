@@ -22,7 +22,7 @@ class P {
 				})
 			)
 		} catch (error) {
-			this.reject(error)
+			process.nextTick(() => this.reject(error))
 		}
 	}
 

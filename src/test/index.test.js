@@ -160,3 +160,22 @@ test('It resolves .catch call asynchronously', async () => {
 
 	expect(whodunnit).toBe('main loop')
 })
+
+test('It triggers a rejection on the callback asynchronously', async () => {
+	let whodunnit
+
+	new P(() => {
+		throw new Error('shiiiet')
+	})
+		.catch(() => {
+			if (!whodunnit) {
+				whodunnit = 'catch'
+			}
+		})
+
+	if (!whodunnit) {
+		whodunnit = 'main loop'
+	}
+
+	expect(whodunnit).toBe('main loop')
+})
