@@ -48,3 +48,11 @@ test('It can catch an error from a promise-returning async func', async () => {
 		P.each(items, maybeThrow)
 	).rejects.toThrowError('sync error')
 })
+
+test('Recursive calls do not overflow the stack', async () => {
+	const array = new Array(1000000)
+
+	const promiseFunc = async () => {}
+
+	await P.each(array, promiseFunc, 0)
+})
