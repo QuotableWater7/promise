@@ -5,6 +5,10 @@ const isPromise = value => (
 
 class P {
 	constructor(cb) {
+		if (typeof cb !== 'function') {
+			throw new Error('Must pass callback function to promise')
+		}
+
 		this.state = 'PENDING'
 		this.callbacks = []
 
@@ -49,6 +53,12 @@ class P {
 	}
 
 	then(successFn, errorFn = null) {
+		if (typeof successFn !== 'function') {
+			throw new Error('Success handler must be a function')
+		} else if (errorFn && typeof errorFn !== 'function') {
+			throw new Error('Error handler must be a function')
+		}
+
 		return new P((resolve, reject) => {
 			if (this.state === 'RESOLVED') {
 				resolve(successFn(this.value))
@@ -66,6 +76,10 @@ class P {
 	}
 
 	catch(cb) {
+		if (typeof cb !== 'function') {
+			throw new Error('Must pass callback function to "catch"')
+		}
+
 		return new P(resolve => {
 			if (this.state === 'REJECTED') {
 				resolve(cb(this.error))
@@ -80,6 +94,10 @@ class P {
 	// iterate over each item in the array and process it with async "func"
 	// once all are complete, we can resolve
 	static each(array, func) {
+		if (typeof func !== 'function') {
+			throw new Error('second arg to "each" must be a function')
+		}
+
 		return new P((resolve, reject) => {
 			function processItem(index) {
 				if (index === array.length) {
@@ -99,6 +117,10 @@ class P {
 	// wait until all promises in "promiseArray" have finished executing, then resolve with their
 	// completed values in the same order as they were provided
 	static all(promiseArray) {
+		if (!(promiseArray instanceof Array)) {
+			throw new Error('Arg must be an array')
+		}
+
 		return new P((resolve, reject) => {
 			const total = promiseArray.length
 			const results = []
@@ -128,6 +150,10 @@ class P {
 	// given an array, map over it with async "func" until every item has been processed.
 	// only "concurrency" promises are active at any given time.
 	static map(array, func, { concurrency = Infinity } = {}) {
+		if (typeof func !== 'function') {
+			throw new Error('Second argument must be function that returns a promise')
+		}
+
 		return new P((resolve, reject) => {
 			// even if concurrency is really high, we can't have more promises active
 			// than the number of items in the array
@@ -168,6 +194,10 @@ class P {
 	// similar to Array.prototype.reduce, except the reducer is an async function.
 	// items are handled serially, so no more than one promise is awaiting resolution at any time.
 	static reduce(array, reducer, initialValue) {
+		if (typeof reducer !== 'function') {
+			throw new Error('Second arg must be a reducer function')
+		}
+
 		const numItems = array.length
 
 		return new P((resolve, reject) => {
@@ -193,6 +223,22 @@ class P {
 
 	// same as Bluebird's static props function
 	static props(obj) {
+		if (typeof obj !== 'object') {
+			throw new Error('Arg must be an object')
+		}
+
+		const badKey = Object
+			.keys(obj)
+			.find(key => {
+				const value = obj[key]
+
+				return typeof value !== 'object' || typeof value.then !== 'function'
+			})
+
+		if (badKey) {
+			throw new Error(`Key "${badKey}" does not have a promise as its value`)
+		}
+
 		return new P((resolve, reject) => {
 			const keys = Object.keys(obj)
 			const result = {}
