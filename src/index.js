@@ -271,6 +271,37 @@ class P {
 	static resolve(value) {
 		return new P(resolve => resolve(value))
 	}
+
+	static promisify(func) {
+		if ((typeof func) !== 'function') {
+			throw new Error('must pass a function to promisify')
+		}
+
+		return (...args) => new Promise((resolve, reject) => {
+			func(...args, (error, result) => {
+				if (error) {
+					reject(error)
+					return
+				}
+
+				resolve(result)
+			})
+		})
+	}
+
+	static promisifyAll(obj) {
+		if ((typeof obj) !== 'object') {
+			throw new Error('must pass an object to promisifyAll')
+		}
+
+		return Object.keys(obj).reduce((memo, key) => {
+			memo[key] = typeof obj[key] === 'function' ?
+				P.promisify(obj[key]) :
+				obj[key]
+
+			return memo
+		}, {})
+	}
 }
 
 module.exports = P
