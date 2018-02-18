@@ -10,7 +10,7 @@ test('It waits to resolve all the values of the object', async () => {
 		one: new P(resolve => resolve(1)),
 		two: (async () => 2)(),
 		three: new Promise(resolve => resolve(3)),
-		four: P.timeout(500, 'bloop')
+		four: P.delay(500, 'bloop')
 	})
 
 	expect(one).toBe(1)

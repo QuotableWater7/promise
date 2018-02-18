@@ -32,7 +32,7 @@ await P.each(ids, async id => {
     .findById(id)
     .lean()
     .exec()
-    
+
   await Model.update({ _id: id }, { name: 'John Doe' })
 })
 ```
@@ -42,7 +42,7 @@ Provide an array, invoke a promise-returning function over each item and return 
 
 ```js
 await P.map(
-  ids, 
+  ids,
   id => Model.findById(id).lean().exec()
 )
 ```
@@ -61,14 +61,14 @@ Each array item is processed serially.
 
 ```js
 const sum = await P.reduce(
-  ids, 
+  ids,
   async (accum, id) => {
     const nextValue = Model
       .findById(id)
       .lean()
       .exec()
       .then(result => result.value)
-      
+
     return accum + id
   },
   0
@@ -88,11 +88,11 @@ const {
 })
 ```
 
-## P.timeout
+## P.delay
 Wait a number of milliseconds before resolving a promise.  Optionally provide a resolved value as a second argument.
 
 ```js
-const boop = await P.timeout(5000, 'boop')
+const boop = await P.delay(5000, 'boop')
 ```
 
 ## P.resolve

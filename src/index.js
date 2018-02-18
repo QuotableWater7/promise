@@ -261,7 +261,7 @@ class P {
 	}
 
 	// wait a specified time (optionally provide a return value)
-	static timeout(delay, value = undefined) {
+	static delay(delay, value = undefined) {
 		return new P(resolve => {
 			setTimeout(() => resolve(value), delay)
 		})
@@ -273,7 +273,7 @@ class P {
 	}
 
 	static promisify(func) {
-		if ((typeof func) !== 'function') {
+		if (typeof func !== 'function') {
 			throw new Error('must pass a function to promisify')
 		}
 
@@ -290,7 +290,7 @@ class P {
 	}
 
 	static promisifyAll(obj) {
-		if ((typeof obj) !== 'object') {
+		if (typeof obj !== 'object') {
 			throw new Error('must pass an object to promisifyAll')
 		}
 
