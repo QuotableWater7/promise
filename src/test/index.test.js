@@ -23,6 +23,16 @@ test('It can catch thrown error in resolver', async () => {
 		})
 })
 
+test('It does not execute second "catch" when first handles err', async () => {
+	const result = await new P(resolve => {
+		throw new Error('nooo')
+	})
+		.catch(error => 1)
+		.catch(() => 2)
+
+	expect(result).toBe(1)
+})
+
 test('It can catch error immediately', async () => {
 	expect(
 		new P((resolve, reject) => {

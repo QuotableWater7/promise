@@ -53,11 +53,7 @@ class P {
 	}
 
 	then(successFn, errorFn = null) {
-		if (typeof successFn !== 'function') {
-			throw new Error('Success handler must be a function')
-		} else if (errorFn && typeof errorFn !== 'function') {
-			throw new Error('Error handler must be a function')
-		}
+		successFn = successFn || (x => x)
 
 		return new P((resolve, reject) => {
 			if (this.state === 'RESOLVED') {
@@ -76,19 +72,7 @@ class P {
 	}
 
 	catch(cb) {
-		if (typeof cb !== 'function') {
-			throw new Error('Must pass callback function to "catch"')
-		}
-
-		return new P(resolve => {
-			if (this.state === 'REJECTED') {
-				resolve(cb(this.error))
-			} else if (this.state === 'PENDING') {
-				this.callbacks.push({
-					error: error => resolve(cb(error)),
-				})
-			}
-		})
+		return this.then(null, cb)
 	}
 
 	// iterate over each item in the array and process it with async "func"
