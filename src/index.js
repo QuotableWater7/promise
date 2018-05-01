@@ -18,12 +18,8 @@ class P {
 		// but invoke the resolve/reject handlers asynchronously.
 		try {
 			cb(
-				(...args) => process.nextTick(() => {
-					this.resolve(...args)
-				}),
-				(...args) => process.nextTick(() => {
-					this.reject(...args)
-				})
+				value => process.nextTick(() => this.resolve(value)),
+				error => process.nextTick(() => this.reject(error))
 			)
 		} catch (error) {
 			process.nextTick(() => this.reject(error))
@@ -34,11 +30,11 @@ class P {
 		this.state = 'RESOLVED'
 		this.value = value
 
-		this.callbacks.forEach(({ success, error }) => {
+		this.callbacks.forEach(({ successCb, errorCb }) => {
 			try {
-				success && success(value)
-			} catch (e) {
-				error && error(e)
+				successCb(value)
+			} catch (error) {
+				errorCb(error)
 			}
 		})
 	}
@@ -47,25 +43,28 @@ class P {
 		this.state = 'REJECTED'
 		this.error = error
 
-		this.callbacks.forEach(({ error: errorFn }) => {
-			errorFn(error)
+		this.callbacks.forEach(({ errorCb }) => {
+			errorCb(error)
 		})
 	}
 
-	then(successFn, errorFn = null) {
-		successFn = successFn || (x => x)
-
+	then(successCb, errorCb) {
 		return new P((resolve, reject) => {
 			if (this.state === 'RESOLVED') {
-				resolve(successFn(this.value))
+				if (successFn) {
+					return resolve(successFn(this.value))
+				}
+				resolve(this.value)
 			} else if (this.state === 'REJECTED' && errorFn) {
-				resolve(errorFn(this.error))
+				if (errorFn) {
+					return resolve(errorFn(this.error))
+				}
+
+				reject(this.error)
 			} else if (this.state === 'PENDING') {
 				this.callbacks.push({
-					success: value => resolve(successFn(value)),
-					error: errorFn ?
-						error => resolve(errorFn(error)) :
-						reject,
+					successCb: successCb ? value => resolve(successCb(value)) : resolve,
+					errorCb: errorCb ? error => resolve(errorCb(error)) : reject,
 				})
 			}
 		})
